@@ -1,8 +1,8 @@
 #---! THIS FILE SHOULD BE MODIFIED BASED ON YOUR CASE
 
 #These variables should be changed
-inpath: /media/anwar/D/Data/ASR/Merged_Arabic_Corpus_of_Isolated_Words/original #where input wave data exist
-outpath: /media/anwar/E/Voice_Biometrics/SIDEKIT-1.3/py3env/exp/phase02 #where the program outputs exist
+inpath: /../../../../../../../../../data/7hellrie/VoxCeleb/vox1_dev_wav #where input wave data exist
+outpath: ./i_vec_out #where the program outputs exist
 
 
 #training configuration
@@ -12,7 +12,7 @@ test_sessions: 5   #number of sessions to be included in the test set
 
 
 #preprocessing configurations
-sampling_rate: 44100
+sampling_rate: 16000
 bit_precision: 16
 no_channels: 1
 
@@ -46,7 +46,7 @@ tv_iterations: 50 # number of iterations to train the variability matrix
 scoring: cosine #can be either "cosine", or "mahalanobis", or "two_covariance"
 
 #i-vectors (PLDA) configurations (depends on TV configuration)
-
+enable_plda: false
 
 
 

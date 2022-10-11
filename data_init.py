@@ -57,20 +57,6 @@ class Initializer():
         #remove the data directory if exists
         if os.path.exists(self.data_dir):
             shutil.rmtree(self.data_dir)
-        #iterate over speakers
-        speakers = sorted(os.listdir(self.conf['inpath']))
-        for sp in tqdm(speakers, desc="Converting Audio"):
-            speaker_path = os.path.join(self.conf['inpath'], sp)
-            wav_filenames = os.listdir(speaker_path)
-            for wav in wav_filenames:
-                inwav = os.path.join(speaker_path, wav)
-                outwav = os.path.join(self.data_dir, wav)
-                convert_wav(inwav,
-                            outwav,
-                            no_channels = self.conf['no_channels'],
-                            sampling_rate = self.conf['sampling_rate'],
-                            bit_precision = self.conf['bit_precision'])
-        
         #remove the enroll directory if exists
         if os.path.exists(self.enroll_dir):
             shutil.rmtree(self.enroll_dir)
@@ -83,22 +69,51 @@ class Initializer():
         #create audio/test directory
         safe_makedir(self.test_dir)
 
-        #parse num of sessions from configuration
-        enroll_sessions = self.conf['enroll_sessions']
-        test_sessions = self.conf['test_sessions']
-        assert enroll_sessions+test_sessions <= 10,\
-            "The summation of all sessions must be less than or equal 10!!"
-        #iterate over all preprocessed waves
-        wav_filenames = os.listdir(self.data_dir)
-        for wav in tqdm(wav_filenames, desc="Copying enroll/test waves"):
-            _, sess, _, _ = wav.split(".")
-            inwav = os.path.join(self.data_dir, wav)
-            if int(sess) <= enroll_sessions:
-                outwav = os.path.join(self.enroll_dir, wav)
-                shutil.copyfile(inwav, outwav)
-            elif int(sess) <= enroll_sessions+test_sessions:
-                outwav = os.path.join(self.test_dir, wav)
-                shutil.copyfile(inwav, outwav)
+        #iterate over speakers
+        speakers = sorted(os.listdir(self.conf['inpath']))
+        for sp in tqdm(speakers, desc="Converting Audio"):
+            speaker_path = os.path.join(self.conf['inpath'], sp)
+            sub_dir = os.listdir(speaker_path)
+            wav_filenames = []
+            for dir in sub_dir:
+                wav_files = os.listdir(os.path.join(speaker_path, dir))
+                for wav in wav_files:
+                    wav_filenames.append(os.path.join(sp, dir, wav))
+            for wav in wav_filenames:
+                inwav = os.path.join(self.conf['inpath'], wav)
+                outwav = os.path.join(self.data_dir, wav)
+                outenroll = os.path.join(self.enroll_dir, wav)#os.path.split(wav)[0]
+                outtest = os.path.join(self.test_dir, wav)
+                convert_wav(inwav,
+                            outwav,
+                            no_channels = self.conf['no_channels'],
+                            sampling_rate = self.conf['sampling_rate'],
+                            bit_precision = self.conf['bit_precision'])
+                safe_makedir(os.path.split(outenroll)[0])
+                shutil.copyfile(outwav, outenroll)
+
+        #iterate over speakers
+        speakers = sorted(os.listdir(os.path.join(os.path.split(self.conf['inpath'])[0],'vox1_test_wav')))
+        for sp in tqdm(speakers, desc="Converting Audio"):
+            speaker_path = os.path.join(os.path.join(os.path.split(self.conf['inpath'])[0],'vox1_test_wav'), sp)
+            sub_dir = os.listdir(speaker_path)
+            wav_filenames = []
+            for dir in sub_dir:
+                wav_files = os.listdir(os.path.join(speaker_path, dir))
+                for wav in wav_files:
+                    wav_filenames.append(os.path.join(sp, dir, wav))
+            for wav in wav_filenames:
+                inwav = os.path.join(os.path.join(os.path.split(self.conf['inpath'])[0],'vox1_test_wav'), wav)
+                outwav = os.path.join(self.data_dir, wav)
+                outenroll = os.path.join(self.enroll_dir, wav)#os.path.split(wav)[0]
+                outtest = os.path.join(self.test_dir, wav)
+                convert_wav(inwav,
+                            outwav,
+                            no_channels = self.conf['no_channels'],
+                            sampling_rate = self.conf['sampling_rate'],
+                            bit_precision = self.conf['bit_precision'])
+                safe_makedir(os.path.split(outtest)[0])
+                shutil.copyfile(outwav, outtest)
 
 
     def create_idMap(self, group):
@@ -118,7 +133,12 @@ class Initializer():
             "Invalid group name!! Choose either 'enroll', 'test'"
         # Make enrollment (IdMap) file list
         group_dir = os.path.join(self.audio_dir, group)
-        group_files = sorted(os.listdir(group_dir))
+        group_files = []
+        for root, dirs, files in os.walk(group_dir):
+            for file in files:
+                #append the file name to the list
+                group_files.append(os.path.join(os.path.split(os.path.split(root)[0])[1],os.path.split(root)[1],file))
+        group_files = sorted(group_files)
         # list of model IDs
         group_models = [files.split('.')[0] for files in group_files]
         # list of audio segments IDs
@@ -152,7 +172,12 @@ class Initializer():
         """
         # Make list of test segments
         test_data_dir = os.path.join(self.audio_dir, "test") #test data directory
-        test_files = sorted(os.listdir(test_data_dir))
+        test_files = []
+        for root, dirs, files in os.walk(test_data_dir):
+            for file in files:
+                #append the file name to the list
+                test_files.append(os.path.join(os.path.split(os.path.split(root)[0])[1],os.path.split(root)[1],file))
+        test_files = sorted(test_files)
         test_files = ["test/"+f for f in test_files]
 
         # Make lists for trial definition, and write to file
@@ -160,17 +185,19 @@ class Initializer():
         test_segments = []
         test_labels = []
         # Get enroll speakers
-        enrolled_speakers = set([])
-        for filename in os.listdir(os.path.join(self.audio_dir, "enroll")):
-            enrolled_speakers.add(filename.split(".")[0])
+        enrolled_speakers = []
+        for root, dirs, files in os.walk(os.path.join(self.audio_dir, "enroll")):
+            for file in files:
+                #append the file name to the list
+                enrolled_speakers.append(os.path.join(os.path.split(os.path.split(root)[0])[1],os.path.split(root)[1],file).split('.')[0])
         enrolled_speakers = sorted(enrolled_speakers)
         for model in tqdm(enrolled_speakers, desc="Creating Test Cases"):
             for segment in sorted(test_files):
-                test_model = segment.split(".")[0].split("/")[-1]
+                test_model = segment.split(".")[0].split("/")[1]
                 test_models.append(model)
                 test_segments.append(segment)
                 # Compare gender and speaker ID for each test file
-                if test_model == model:
+                if test_model == model.split("/")[0]:
                     test_labels.append('target')
                 else:
                     test_labels.append('nontarget')
@@ -207,12 +234,18 @@ class Initializer():
         self.create_idMap("test")
         self.create_test_trials()
         self.create_Ndx()
-        print("DONE!!")
+
+def data_inint_main():
+    conf_filename = "conf.yaml"
+    init = Initializer(conf_filename)
+    init.structure()
+    print("data_inint DONE!!")
 
 
 
 
 if __name__ == "__main__":
-    conf_filename = "py3env/conf.yaml"
+    conf_filename = "conf.yaml"
     init = Initializer(conf_filename)
     init.structure()
+    print("DONE!!")

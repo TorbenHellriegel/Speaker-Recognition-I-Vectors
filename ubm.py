@@ -32,7 +32,13 @@ class UBM(SidekitModel):
                then the StatServer will be discarded.
         """
         #SEE: https://projets-lium.univ-lemans.fr/sidekit/tutorial/ubmTraining.html
-        train_list = os.listdir(os.path.join(self.BASE_DIR, "audio", "enroll"))
+        train_list = []
+        for root, dirs, files in os.walk(os.path.join(self.BASE_DIR, "feat", "enroll")):
+            for file in files:
+                #append the file name to the list
+                train_list.append(os.path.join(os.path.split(os.path.split(root)[0])[1],os.path.split(root)[1],file))
+        train_list = sorted(train_list)
+        #train_list = os.listdir(os.path.join(self.BASE_DIR, "audio", "enroll")) GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
         for i in range(len(train_list)):
             train_list[i] = train_list[i].split(".h5")[0]
         server = self.createFeatureServer("enroll")
@@ -197,7 +203,7 @@ class UBM(SidekitModel):
 
 
 if __name__ == "__main__":
-    conf_filename = "py3env/conf.yaml"
+    conf_filename = "conf.yaml"
     ubm = UBM(conf_filename)
     ubm.train()
     ubm.evaluate()

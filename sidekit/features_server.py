@@ -28,6 +28,7 @@ Copyright 2014-2019 Sylvain Meignier and Anthony Larcher
 
 """
 import multiprocessing
+import os
 import numpy
 import logging
 import h5py
@@ -481,8 +482,14 @@ class FeaturesServer(object):
         else:
             h5f = self.features_extractor.extract(show, channel, input_audio_filename=input_feature_filename)
         #ANWAR(EDITED) (show to show.split("/")[-1])
+        if(show.split('/')[0]=='enroll'):
+            noshow = os.path.join(*show.strip("/").split('/')[1:])
+        elif(show.split('/')[0]=='test'):
+            noshow = os.path.join(*show.strip("/").split('/')[1:])
+        else:
+            noshow = show
         feat, label, global_mean, global_std, global_cmvn = read_hdf5_segment(h5f,
-                                                                 show.split("/")[-1],
+                                                                 noshow,
                                                                  dataset_list=self.dataset_list,
                                                                  label=label,
                                                                  start=start, stop=stop,

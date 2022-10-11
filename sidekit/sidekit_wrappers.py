@@ -82,7 +82,7 @@ def check_path_existance(func):
     def wrapper(*args, **kwargs):
         dir_name = os.path.dirname(args[1])  # get the path
         # Create the directory if it dosn't exist
-        if not os.path.exists(dir_name) and (dir_name is not ''):
+        if not os.path.exists(dir_name) and (dir_name != ''):
             os.makedirs(dir_name)            
         # Do the job
         func(*args, **kwargs)
@@ -189,7 +189,7 @@ def process_parallel_lists(func):
                     for ii in range(num_thread):
                         parallel_kwargs[ii][k] = v
             
-            if PARALLEL_MODULE is 'multiprocessing':
+            if PARALLEL_MODULE == 'multiprocessing':
                 import multiprocessing
                 jobs = []
                 multiprocessing.freeze_support()
@@ -200,7 +200,7 @@ def process_parallel_lists(func):
                 for p in jobs:
                     p.join()
             
-            elif PARALLEL_MODULE is 'threading':
+            elif PARALLEL_MODULE == 'threading':
                 import threading
                 jobs = []
                 for idx in range(num_thread):
@@ -210,7 +210,7 @@ def process_parallel_lists(func):
                 for p in jobs:
                     p.join()
         
-            elif PARALLEL_MODULE is 'MPI':
+            elif PARALLEL_MODULE == 'MPI':
                 # TODO
                 print("ParallelProcess using MPI is not implemented yet")
                 pass
@@ -253,16 +253,16 @@ def accepts(*types, **kw):
     try:
         def decorator(f):
             def newf(*args):
-                if debug is 0:
+                if debug == 0:
                     return f(*args)
                 assert len(args) == len(types)
                 argtypes = tuple([a.__class__.__name__ for a in args])
                 if argtypes != types:
                     print("argtypes = {} and types = {}".format(argtypes, types))
                     msg = info(f.__name__, types, argtypes, 0)
-                    if debug is 1:
+                    if debug == 1:
                         print('TypeWarning: ', msg)
-                    elif debug is 2:
+                    elif debug == 2:
                         raise TypeError(msg)
                 return f(*args)
             newf.__name__ = f.__name__

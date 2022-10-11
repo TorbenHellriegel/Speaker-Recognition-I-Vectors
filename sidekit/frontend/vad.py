@@ -283,7 +283,7 @@ def speech_enhancement(X, Gain, NN):
 
         ffty = new_absx * argx  # multiply amplitude with its normalized spectrum
 
-        y = numpy.real(numpy.fft.fftpack.ifft(numpy.concatenate((ffty,
+        y = numpy.real(numpy.fft.ifft(numpy.concatenate((ffty,
                                                                  numpy.conj(ffty[numpy.arange(Fmax - 2, 0, -1)])))))
 
         y[:FrameSize - FrameShift] = y[:FrameSize - FrameShift] + y0

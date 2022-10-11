@@ -4,6 +4,7 @@ import numpy as np
 import logging
 logging.basicConfig(level=logging.INFO)
 from multiprocessing import cpu_count
+from tqdm import tqdm
 from utils import parse_yaml
 
 class FeaturesExtractor():
@@ -65,7 +66,12 @@ class FeaturesExtractor():
         """
         assert group in ["enroll", "test"],\
             "Invalid group name!! Choose either 'enroll', 'test'"
-        in_files = os.listdir(os.path.join(self.audio_dir, group))
+        in_files = []
+        for root, dirs, files in os.walk(os.path.join(self.audio_dir, group)):
+            for file in files:
+                #append the file name to the list
+                in_files.append(os.path.join(os.path.split(os.path.split(root)[0])[1],os.path.split(root)[1],file))
+        in_files = sorted(in_files)
         feat_dir = os.path.join(self.feat_dir, group)
         # Feature extraction
         # lower_frequency: lower frequency (in Herz) of the filter bank
@@ -108,7 +114,7 @@ class FeaturesExtractor():
         # (energy, fb, cep, bnf, vad_label).
         # SKIPPED: list to track faulty-files
         SKIPPED = []
-        for show, channel in zip(show_list, channel_list):
+        for show, channel in tqdm(zip(show_list, channel_list), desc="Extracting "+group+" Features", total=show_list.shape[0]):
             try:
                 extractor.save(show, channel)
             except RuntimeError:
@@ -127,12 +133,20 @@ class FeaturesExtractor():
         #                     channel_list=channel_list,
         #                     num_thread=self.NUM_THREADS)
 
+def extract_features_main():
+    conf_filename = "conf.yaml"
+    ex = FeaturesExtractor(conf_filename)
+    ex.extract_features("enroll")
+    ex.extract_features("test")
+    print("extract_features DONE!!")
+
 
 
 
 
 if __name__ == "__main__":
-    conf_filename = "py3env/conf.yaml"
+    conf_filename = "conf.yaml"
     ex = FeaturesExtractor(conf_filename)
     ex.extract_features("enroll")
     ex.extract_features("test")
+    print("DONE!!")

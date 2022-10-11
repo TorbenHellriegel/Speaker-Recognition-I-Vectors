@@ -4,6 +4,8 @@ include
 lib
 man
 share
+ivecvenv
+i_vec_out
 
 #output directories
 exp

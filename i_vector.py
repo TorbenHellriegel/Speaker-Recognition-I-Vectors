@@ -93,6 +93,23 @@ class IVector(SidekitModel):
                     )
                 plda_stat.write(os.path.join(self.BASE_DIR, "stat", plda_filename))
         
+        # Load sufficient statistics from enroll data
+        filename = 'enroll_stat_{}.h5'.format(self.NUM_GAUSSIANS)
+        if not os.path.isfile(os.path.join(self.BASE_DIR, "stat", filename)):
+            enroll_idmap = sidekit.IdMap.read(os.path.join(self.BASE_DIR, "task", "enroll_idmap.h5"))
+            enroll_stat = sidekit.StatServer( statserver_file_name=enroll_idmap, 
+                                            ubm=ubm
+                                          )
+            # Create Feature Server
+            fs = self.createFeatureServer()
+            # Jointly compute the sufficient statistics of TV and PLDA data
+            #BUG: don't use self.NUM_THREADS when assgining num_thread as it's prune to race-conditioning
+            enroll_stat.accumulate_stat(ubm=ubm,
+                                    feature_server=fs,
+                                    seg_indices=range(enroll_stat.segset.shape[0])
+                                    )
+            enroll_stat.write(os.path.join(self.BASE_DIR, "stat", filename))
+        
         # Load sufficient statistics from test data
         filename = 'test_stat_{}.h5'.format(self.NUM_GAUSSIANS)
         if not os.path.isfile(os.path.join(self.BASE_DIR, "stat", filename)):
@@ -200,8 +217,8 @@ class IVector(SidekitModel):
             modelset = list(scores_cos.modelset)
             segset = list(scores_cos.segset)
             scores = np.array(scores_cos.scoremat)
-            filename = "ivector_scores_explained_{}.txt".format(iv.NUM_GAUSSIANS)
-            fout = open(os.path.join(iv.BASE_DIR, "result", filename), "a")
+            filename = "ivector_scores_explained_{}.txt".format(self.NUM_GAUSSIANS)
+            fout = open(os.path.join(self.BASE_DIR, "result", filename), "a")
             fout.truncate(0) #clear content
             for seg_idx, seg in enumerate(segset):
                 fout.write("Wav: {}\n".format(seg))
@@ -233,11 +250,20 @@ class IVector(SidekitModel):
         accuracy = super().getAccuracy(modelset, segest, scores, threshold=0)
         return accuracy
 
-
-
-if __name__ == "__main__":
-    conf_path = "py3env/conf.yaml"
+def i_vector_main():
+    conf_path = "conf.yaml"
     iv = IVector(conf_path)
     iv.train_tv()
     iv.evaluate()
     print( "Accuracy: {}%".format(iv.getAccuracy()) )
+    print("i_vector DONE!!")
+
+
+
+if __name__ == "__main__":
+    conf_path = "conf.yaml"
+    iv = IVector(conf_path)
+    iv.train_tv()
+    iv.evaluate()
+    print( "Accuracy: {}%".format(iv.getAccuracy()) )
+    print("DONE!!")
