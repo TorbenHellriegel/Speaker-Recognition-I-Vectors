@@ -4,7 +4,7 @@ import shutil
 import sidekit
 import numpy as np
 from tqdm import tqdm
-from utils import convert_wav, safe_makedir, parse_yaml
+from utils import convert_wav, convert_wav_aug, safe_makedir, parse_yaml
 
 
 
@@ -82,15 +82,20 @@ class Initializer():
             for wav in wav_filenames:
                 inwav = os.path.join(self.conf['inpath'], wav)
                 outwav = os.path.join(self.data_dir, wav)
-                outenroll = os.path.join(self.enroll_dir, wav)#os.path.split(wav)[0]
-                outtest = os.path.join(self.test_dir, wav)
-                convert_wav(inwav,
-                            outwav,
-                            no_channels = self.conf['no_channels'],
-                            sampling_rate = self.conf['sampling_rate'],
-                            bit_precision = self.conf['bit_precision'])
+                outenroll = os.path.join(self.enroll_dir, wav)
+                outwav0, outwav1, outwav2 = convert_wav_aug(inwav, outwav)
+                # convert_wav(inwav,
+                #             outwav,
+                #             no_channels = self.conf['no_channels'],
+                #             sampling_rate = self.conf['sampling_rate'],
+                #             bit_precision = self.conf['bit_precision'])
                 safe_makedir(os.path.split(outenroll)[0])
-                shutil.copyfile(outwav, outenroll)
+                outenroll0 = os.path.join(os.path.split(outenroll)[0],outwav0.split('/')[-1])
+                outenroll1 = os.path.join(os.path.split(outenroll)[0],outwav1.split('/')[-1])
+                outenroll2 = os.path.join(os.path.split(outenroll)[0],outwav2.split('/')[-1])
+                shutil.copyfile(outwav0, outenroll0)
+                shutil.copyfile(outwav1, outenroll1)
+                shutil.copyfile(outwav2, outenroll2)
 
         #iterate over speakers
         speakers = sorted(os.listdir(os.path.join(os.path.split(self.conf['inpath'])[0],'vox1_test_wav')))
@@ -105,15 +110,20 @@ class Initializer():
             for wav in wav_filenames:
                 inwav = os.path.join(os.path.join(os.path.split(self.conf['inpath'])[0],'vox1_test_wav'), wav)
                 outwav = os.path.join(self.data_dir, wav)
-                outenroll = os.path.join(self.enroll_dir, wav)#os.path.split(wav)[0]
                 outtest = os.path.join(self.test_dir, wav)
-                convert_wav(inwav,
-                            outwav,
-                            no_channels = self.conf['no_channels'],
-                            sampling_rate = self.conf['sampling_rate'],
-                            bit_precision = self.conf['bit_precision'])
+                outwav0, outwav1, outwav2 = convert_wav_aug(inwav, outwav)
+                # convert_wav(inwav,
+                #             outwav,
+                #             no_channels = self.conf['no_channels'],
+                #             sampling_rate = self.conf['sampling_rate'],
+                #             bit_precision = self.conf['bit_precision'])
                 safe_makedir(os.path.split(outtest)[0])
-                shutil.copyfile(outwav, outtest)
+                outtest0 = os.path.join(os.path.split(outtest)[0],outwav0.split('/')[-1])
+                outtest1 = os.path.join(os.path.split(outtest)[0],outwav1.split('/')[-1])
+                outtest2 = os.path.join(os.path.split(outtest)[0],outwav2.split('/')[-1])
+                shutil.copyfile(outwav0, outtest0)
+                shutil.copyfile(outwav1, outtest1)
+                shutil.copyfile(outwav2, outtest2)
 
 
     def create_idMap(self, group):
