@@ -647,7 +647,7 @@ class Mixture(object):
                  iterations=(1, 2, 2, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8),
                  num_thread=1,
                  llk_gain=0.01,
-                 save_partial=False,
+                 save_partial=True,
                  output_file_name="ubm",
                  ceil_cov=10,
                  floor_cov=1e-2):

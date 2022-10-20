@@ -38,7 +38,7 @@ class UBM(SidekitModel):
                 #append the file name to the list
                 train_list.append(os.path.join(os.path.split(os.path.split(root)[0])[1],os.path.split(root)[1],file))
         train_list = sorted(train_list)
-        #train_list = os.listdir(os.path.join(self.BASE_DIR, "audio", "enroll")) GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+        #train_list = os.listdir(os.path.join(self.BASE_DIR, "audio", "enroll"))
         for i in range(len(train_list)):
             train_list[i] = train_list[i].split(".h5")[0]
         server = self.createFeatureServer("enroll")
@@ -52,7 +52,7 @@ class UBM(SidekitModel):
             feature_list=train_list, #list of feature files to train the model
             distrib_nb=self.NUM_GAUSSIANS, #number of Gaussian distributions
             num_thread=self.NUM_THREADS, # number of parallel processes
-            save_partial=False, # if False, it only saves the last model
+            save_partial=True, # if False, it only saves the last model
             iterations=(1, 2, 2, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8)
             )
             # -> 2 iterations of EM with 2    distributions

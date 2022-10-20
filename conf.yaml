@@ -24,7 +24,7 @@ features:
   - cep #cepstral coefficients
   - fb #filter-banks
   #- bnf
-cepstral_coefficients: 19
+cepstral_coefficients: 20
 filter_bank: log #filter bank can either be "log" for logarithmic and "lin" for linear
 filter_bank_size: 24
 lower_frequency: 300
@@ -40,9 +40,9 @@ num_gaussians: 64
 
 
 #i-vectors (tv) configurations (depends on UBM configurations)
-batch_size: 30 #size of data batch
-tv_rank: 25 # Rank of the total variability matrix
-tv_iterations: 50 # number of iterations to train the variability matrix
+batch_size: 512 #size of data batch
+tv_rank: 600 # Rank of the total variability matrix
+tv_iterations: 10 # number of iterations to train the variability matrix
 scoring: cosine #can be either "cosine", or "mahalanobis", or "two_covariance"
 
 #i-vectors (PLDA) configurations (depends on TV configuration)

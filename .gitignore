@@ -7,6 +7,8 @@ share
 ivecvenv
 i_vec_out
 i_vec_out_aug
+logs
+screenlog.0
 
 #output directories
 exp

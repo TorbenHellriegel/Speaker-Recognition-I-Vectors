@@ -147,16 +147,17 @@ class IVector(SidekitModel):
         outputPath = os.path.join(self.BASE_DIR, "ivector", filename)
         tv_filename = 'tv_stat_{}.h5'.format(self.NUM_GAUSSIANS)
         fa = sidekit.FactorAnalyser()
-        fa.total_variability_single(os.path.join(self.BASE_DIR, "stat", tv_filename),
-                                    ubm,
-                                    tv_rank=self.TV_RANK,
-                                    nb_iter=self.TV_ITERATIONS,
-                                    min_div=True,
-                                    tv_init=None,
-                                    batch_size=self.BATCH_SIZE,
-                                    save_init=False,
-                                    output_file_name=outputPath
-                                   )
+        fa.total_variability(os.path.join(self.BASE_DIR, "stat", tv_filename),
+                            ubm,
+                            tv_rank=self.TV_RANK,
+                            nb_iter=self.TV_ITERATIONS,
+                            min_div=True,
+                            tv_init=None,
+                            batch_size=self.BATCH_SIZE,
+                            save_init=False,
+                            output_file_name=outputPath,
+                            num_thread=cpu_count()
+                            )
         # tv = fa.F # TV matrix
         # tv_mean = fa.mean # Mean vector
         # tv_sigma = fa.Sigma # Residual covariance matrix
