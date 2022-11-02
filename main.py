@@ -56,4 +56,9 @@ if __name__ == "__main__":
         i_vector.to_csv('i_vectors/i_vector_test_v2.csv')
         print('saved')
 
+        # IMPORTANT!
+        # After this point the PLDA classifier is used as implemented in the x-vector system
+        # Use the PLDA in the x-vector system by simply giving the path to the i-vector .csv file
+        # instead of the x-vector .csv file when training the PLDA.
+
     print("ALL DONE!!")

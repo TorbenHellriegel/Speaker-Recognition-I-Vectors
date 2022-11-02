@@ -1,3 +1,5 @@
+This repository was forked and used as a baseline for my own speaker recognition system based on x-vectors. This code is only used to generate i-vectors with the newly added main.py. Afterward, the i-vectors are used to train a PLDA classifier and later tested. This training and testing is not done here but with the code in my x-vector speaker recognition system.
+
 # Speaker Recognition using SideKit
 This repo contains my Speaker Recognition/Verification project using SideKit.
 
