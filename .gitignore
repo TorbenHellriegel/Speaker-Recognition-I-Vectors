@@ -12,6 +12,7 @@ screenlog.0
 
 #output directories
 exp
+*.csv
 
 #python files/directories
 __pycache__

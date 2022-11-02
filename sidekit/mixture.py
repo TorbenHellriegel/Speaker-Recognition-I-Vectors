@@ -284,15 +284,15 @@ class Mixture(object):
         :param prefix:
         """
         with h5py.File(mixture_file_name, 'r') as f:
-            self.w = f.get(prefix+'w').value
+            self.w = f.get(prefix+'w')[()]
             self.w.resize(numpy.max(self.w.shape))
-            self.mu = f.get(prefix+'mu').value
-            self.invcov = f.get(prefix+'invcov').value
-            self.invchol = f.get(prefix+'invchol').value
-            self.cov_var_ctl = f.get(prefix+'cov_var_ctl').value
-            self.cst = f.get(prefix+'cst').value
-            self.det = f.get(prefix+'det').value
-            self.A = f.get(prefix+'a').value
+            self.mu = f.get(prefix+'mu')[()]
+            self.invcov = f.get(prefix+'invcov')[()]
+            self.invchol = f.get(prefix+'invchol')[()]
+            self.cov_var_ctl = f.get(prefix+'cov_var_ctl')[()]
+            self.cst = f.get(prefix+'cst')[()]
+            self.det = f.get(prefix+'det')[()]
+            self.A = f.get(prefix+'a')[()]
 
     @check_path_existance
     def write_alize(self, mixture_file_name):

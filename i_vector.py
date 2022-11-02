@@ -141,32 +141,38 @@ class IVector(SidekitModel):
         model_name = "ubm_{}.h5".format(self.NUM_GAUSSIANS)
         ubm = sidekit.Mixture()
         ubm.read(os.path.join(self.BASE_DIR, "ubm", model_name))
+        
+        # # Load TV matrix
+        # # #filename = "tv_matrix_{}".format(64) #TODO comment in TODO
+        # filename = "tv_matrix_{}_init-6".format(64)
+        # outputPath = os.path.join('./i_vec_out', "ivector", filename)
+        # fa = sidekit.FactorAnalyser(outputPath+".h5")
+        # tv_init_matrix = fa.F
 
         # Train TV matrix using FactorAnalyser
         filename = "tv_matrix_{}".format(self.NUM_GAUSSIANS)
         outputPath = os.path.join(self.BASE_DIR, "ivector", filename)
         tv_filename = 'tv_stat_{}.h5'.format(self.NUM_GAUSSIANS)
         fa = sidekit.FactorAnalyser()
-        fa.total_variability(os.path.join(self.BASE_DIR, "stat", tv_filename),
+        fa.total_variability_single(os.path.join(self.BASE_DIR, "stat", tv_filename),
                             ubm,
                             tv_rank=self.TV_RANK,
                             nb_iter=self.TV_ITERATIONS,
                             min_div=True,
-                            tv_init=None,
+                            tv_init=None, #tv_init_matrix,
                             batch_size=self.BATCH_SIZE,
-                            save_init=False,
-                            output_file_name=outputPath,
-                            num_thread=cpu_count()
+                            save_init=True,
+                            output_file_name=outputPath
                             )
         # tv = fa.F # TV matrix
         # tv_mean = fa.mean # Mean vector
         # tv_sigma = fa.Sigma # Residual covariance matrix
 
         # Clear files produced at each iteration
-        filename_regex = "tv_matrix_{}_it-*.h5".format(self.NUM_GAUSSIANS)
-        lst = glob(os.path.join(self.BASE_DIR, "ivector", filename_regex))
-        for f in lst:
-            os.remove(f)
+        # filename_regex = "tv_matrix_{}_it-*.h5".format(self.NUM_GAUSSIANS)
+        # lst = glob(os.path.join(self.BASE_DIR, "ivector", filename_regex))
+        # for f in lst:
+        #     os.remove(f)
     
 
     def evaluate(self, explain=True):
@@ -255,9 +261,6 @@ def i_vector_main():
     conf_path = "conf.yaml"
     iv = IVector(conf_path)
     iv.train_tv()
-    iv.evaluate()
-    print( "Accuracy: {}%".format(iv.getAccuracy()) )
-    print("i_vector DONE!!")
 
 
 

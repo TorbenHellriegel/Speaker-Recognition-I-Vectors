@@ -310,17 +310,17 @@ class FactorAnalyser:
         """
         fa = FactorAnalyser()
         with h5py.File(input_filename, "r") as fh:
-            kind = fh.get("fa/kind").value
+            kind = fh.get("fa/kind")[()]
             if kind[0] != 0:
-                fa.mean = fh.get("fa/mean").value
+                fa.mean = fh.get("fa/mean")[()]
             if kind[1] != 0:
-                fa.F = fh.get("fa/f").value
+                fa.F = fh.get("fa/f")[()]
             if kind[2] != 0:
-                fa.G = fh.get("fa/g").value
+                fa.G = fh.get("fa/g")[()]
             if kind[3] != 0:
-                fa.H = fh.get("fa/h").value
+                fa.H = fh.get("fa/h")[()]
             if kind[4] != 0:
-                fa.Sigma = fh.get("fa/sigma").value
+                fa.Sigma = fh.get("fa/sigma")[()]
         return fa
 
     def total_variability_raw(self,
@@ -717,12 +717,10 @@ class FactorAnalyser:
 
         for sess in tqdm(range(stat_server.segset.shape[0]), desc="Processing"):
 
-            inv_lambda = scipy.linalg.inv(numpy.eye(tv_rank) + (self.F.T *
-                                                                stat_server.stat0[sess, index_map]).dot(self.F))
+            inv_lambda = numpy.linalg.inv(numpy.eye(tv_rank) + (self.F.T * stat_server.stat0[sess, index_map]).dot(self.F))
             Aux = self.F.T.dot(stat_server.stat1[sess, :])
             iv_stat_server.stat1[sess, :] = Aux.dot(inv_lambda)
-            iv_sigma[sess, :] = numpy.diag(inv_lambda + numpy.outer(iv_stat_server.stat1[sess, :],
-                                                                    iv_stat_server.stat1[sess, :]))
+            iv_sigma[sess, :] = numpy.diag(inv_lambda + numpy.outer(iv_stat_server.stat1[sess, :], iv_stat_server.stat1[sess, :]))
 
         if uncertainty:
             return iv_stat_server, iv_sigma

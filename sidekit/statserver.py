@@ -383,23 +383,23 @@ class StatServer:
         """
         with h5py.File(statserver_file_name, "r") as f:
             statserver = StatServer()
-            statserver.modelset = f.get(prefix+"modelset").value
-            statserver.segset = f.get(prefix+"segset").value
+            statserver.modelset = f.get(prefix+"modelset")[()]
+            statserver.segset = f.get(prefix+"segset")[()]
 
             # if running python 3, need a conversion to unicode
             if sys.version_info[0] == 3:
                 statserver.modelset = statserver.modelset.astype('U', copy=False)
                 statserver.segset = statserver.segset.astype('U', copy=False)
 
-            tmpstart = f.get(prefix+"start").value
-            tmpstop = f.get(prefix+"stop").value
+            tmpstart = f.get(prefix+"start")[()]
+            tmpstop = f.get(prefix+"stop")[()]
             statserver.start = numpy.empty(f[prefix+"start"].shape, '|O')
             statserver.stop = numpy.empty(f[prefix+"stop"].shape, '|O')
             statserver.start[tmpstart != -1] = tmpstart[tmpstart != -1]
             statserver.stop[tmpstop != -1] = tmpstop[tmpstop != -1]
 
-            statserver.stat0 = f.get(prefix+"stat0").value.astype(dtype=STAT_TYPE)
-            statserver.stat1 = f.get(prefix+"stat1").value.astype(dtype=STAT_TYPE)
+            statserver.stat0 = f.get(prefix+"stat0")[()].astype(dtype=STAT_TYPE)
+            statserver.stat1 = f.get(prefix+"stat1")[()].astype(dtype=STAT_TYPE)
 
             assert statserver.validate(), "Error: wrong StatServer format"
             return statserver

@@ -638,8 +638,9 @@ class FeaturesServer(object):
         queue_out = []
         
         # Submit tasks
-        for task in zip(show_list, channel_list, feature_filename_list, label_list, start_list, stop_list):
-            queue_in.put(task)
+        for i, task in enumerate(zip(show_list, channel_list, feature_filename_list, label_list, start_list, stop_list)):
+            if i%100 == 0:
+                queue_in.put(task)
         
         # Start worker processes
         jobs = []
@@ -660,6 +661,7 @@ class FeaturesServer(object):
         # Wait for all the tasks to finish
         queue_in.join()
                    
+        print('append output')
         output = []
         for q in queue_out:
             while True:
@@ -667,9 +669,12 @@ class FeaturesServer(object):
                 if data is None:
                     break
                 output.append(data)
+        print('append output done')
 
+        print('concatenate output')
         for p in jobs:
             p.join()
+        print('concatenate output done')
         return numpy.concatenate(output, axis=0)
 
 
